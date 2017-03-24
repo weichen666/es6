@@ -1,0 +1,21 @@
+<script type="text/javascript">
+	
+	//1.接受一个数组
+	var set = new Set([1, 2, 3, 4, 5, 1, 4]);
+
+	[...set]
+	set.size
+
+	//2. 类数组对象
+	function divs(){
+		return [...document.querySelectorAll('div')];
+	}
+
+	var set = new Set(divs())
+	set.size
+
+	//类似
+	divs().forEach(div => set.add(div))
+	
+
+</script>

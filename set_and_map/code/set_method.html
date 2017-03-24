@@ -1,0 +1,46 @@
+<script type="text/javascript">
+		
+	var s = new Set();
+
+	//返回对象本身
+	s.add(1).add(2).add(2); 
+
+	s.size //2
+
+	s.has(1);
+	s.has(2);
+	s.has(3);
+
+	s.delete(2);
+	s.has(2)
+
+
+	//对象的写法
+	var properties = {
+		width:1,
+		height:2
+	};
+
+	if(properties[someName]){
+		//to do
+	}
+
+	//Set的写法
+	var properties = new Set();
+	properties.add('width')
+	properties.add('height')
+
+	if(properties.has(someName)){
+		// to do
+	}
+
+	//Array.from 方法可以将Set结构转为数组
+	var items = new Set([1, 2, 3, 4, 5]);
+	var arrays = Array.from(items);
+
+	//提供了数组去重的另一种方法。
+	function dedupe(array){
+		return Array.from(new Set(array))
+	}
+
+</script>

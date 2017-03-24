@@ -1,0 +1,52 @@
+<script type="text/javascript">
+	
+	//由于Set 没有键值，所以 keys() 和 values() 行为一致
+
+	let set = new Set(['red', 'green', 'blue']);
+
+	for (let item of set.keys()){
+		console.log(item);
+	}
+
+	for (let item of set.values()){
+		console.log(item);
+	}
+
+	for(let item of set.entries()){
+		console.log(item);
+	}
+	//返回的是[key, value]
+
+
+	//Set结构的实例默认是可遍历，它的默认遍历器生成函数就是它的values方法
+	Set.prototype[Symbol.iterator] === Set.prototype.values
+
+	//这个意味着可以省略掉values方法，直接用for...of循环遍历Set。
+	for(let x of set){
+		console.log(x)
+	}
+
+
+	//forEach()方法
+	//对于每一个成员执行某种操作，没有返回值
+	let set = new Set([1, 2, 3]);
+	set.forEach((key, value, _set) => console.log(value * 2))
+	/**
+		上面代码说明，forEach方法的参数就是一个处理函数。该函数的参数依次为键值、键名、集合本身（上例省略了该参数）。另外，forEach方法还可以有第二个参数，表示绑定的this对象。
+	**/
+
+
+	//遍历的应用
+
+	// 扩展运算符(...) 内部使用for...of 循环，所以也可以用于Set结构
+	let set = new Set(['red', 'green', 'blue']);
+	let arr = [...set];  //['red', 'green', 'blue']
+
+	//扩展运算符和Set结构相结合，就可以去除数组的重复成员。
+	let arr = [3, 5, 2, 2, 5, 5];
+	let unique = [... new Set(arr)]; // [3, 5, 2]
+
+	//数组的map和filter方法也可以用于Set了
+
+
+</script>
