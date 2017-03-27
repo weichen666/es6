@@ -55,4 +55,20 @@
 	set = new Set([...set].filter(x=> (x%2) == 0))
 	//返回Set结构{2, 4}
 
+	//使用Set可以很容易实现并集(Union)、交集(Intersect)和差集(Difference)
+	let a = new Set([1, 2, 3]);
+	let b = new Set([4, 3, 2]);
+
+	//并集
+	let union = new Set([...a, ...b]);
+	// Set{1, 2, 3, 4}
+
+	//交集
+	let intersect = new Set([...a].filter(x => b.has(x)));
+	//set {2, 3}
+
+	//差集
+	let difference = new Set([...a].filter(x => !b.has(x)));
+	//Set {1}
+
 </script>

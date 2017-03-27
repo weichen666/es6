@@ -1,0 +1,19 @@
+<script type="text/javascript">
+	
+	var ws = new WeakSet();
+	var obj = {};
+	var foo = {};
+
+	ws.add(window);
+	ws.add(obj);
+
+	ws.has(window); //true
+	ws.has(foo); // false
+
+	ws.delete(window);
+	ws.has(window); //false
+
+	//WeakSet没有size属性，没有办法遍历它的成员。
+	ws.size // undefined
+	ws.forEach // undefined
+</script>
