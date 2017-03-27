@@ -47,6 +47,12 @@
 	let unique = [... new Set(arr)]; // [3, 5, 2]
 
 	//数组的map和filter方法也可以用于Set了
+	let set = new Set([1, 2, 3]);
+	set = new Set([...set].map(x=> x*2));
+	//返回Set结构：{2, 3, 6}
 
+	let set = new Set([1, 2,3, 4, 5]);
+	set = new Set([...set].filter(x=> (x%2) == 0))
+	//返回Set结构{2, 4}
 
 </script>
