@@ -1,0 +1,13 @@
+<script type="text/javascript">
+	//将3号位置复制到0号位置
+	[1, 2, 3, 4, 5].copyWithin(0, 3, 4);
+	// -2相当于3号位，-1相当于4号位
+	[1, 2, 3, 4, 5].copyWithin(0, -2, -1)  //不包含最后一个
+
+	// 将3号位复制到0号位
+	[].copyWithin.call({length: 5, 3: 1}, 0, 3)
+
+
+
+	
+</script>
