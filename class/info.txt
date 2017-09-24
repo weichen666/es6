@@ -1,0 +1,319 @@
+1. 简介
+    js语言中，生成实例对象的传统方法是通过构造函数
+
+        function Point(x, y){
+            this.x = x;
+            this.y = y;
+        }
+
+        Point.prototype.toString = function(){
+            return "(" + this.x + ", " + this.y +")";
+        }
+
+        var p = new Point(1, 2);
+
+    ES6 提供了更接近传统语言的写法，引入了Class(类)这个概念，作为对象的模板，通过class关键字，可以定义类。
+
+    基本上，ES6的class可以看作只是一个语法糖，它的绝大部分功能，ES6都可以做到，
+    新的class写法只是让对象原型的写法更加清晰，更像面向对象编程的语法而已。
+
+    //定义类
+    class Point{
+        constructor(x, y){
+            this.x = x;
+            this.y = y;
+        }
+        toString(){
+            return "(" + this.x + ", " + this.y + ")";
+        }
+    }
+
+    contractor方法，就是一个构造函数，而this关键字则代表实例对象
+
+    Point 类除了构造方法，还定义了一个toString方法。
+    注意，定义“类”的方法的时候，前面不需要加上function这个关键字，方法之后不需要逗号，否则会报错。
+
+    typeof Point  //"function"
+    Point === Point.prototype.constructor // true
+
+    重点： 类的数据类型就是函数，类本身就指向构造函数。
+
+    使用的时候，也只直接对类使用new名称，跟构造函数的用法完全一致。
+
+    class Bar{
+        doStuff(){
+            console.log('stuff');
+        }
+    }
+
+    var b = new Bar();
+    b.doStuff() //"stuff"
+
+    构造函数的prototype属性，在ES6的类上面继续存储。
+    实际上，类的所有方法都定义在类的prototype属性上面。
+    class Point(){
+        constructor(){
+            ;
+        }
+        toString(){
+            ;
+        }
+        toValue(){
+            ;
+        }
+    }
+
+    //等同于
+    Point.prototype = {
+        constructor(){},
+        toString(){},
+        toValue(){}
+    }
+
+    在类的实例上调用方法，实际就是调用原型上的方法。
+    class B{
+        let b = new B();
+    }
+    b.constructor === B.prototype.constructor //true
+
+
+    由于类的方法都定义在prototype对象上面，所以类的新方法可以添加在prototype对象上面。
+    Object.assign 方法可以很方便地一次向类添加多个方法
+
+    class Point(){
+        constructor(){
+
+        }
+    }
+
+    Object.assign(Point.prototype, {
+        toString(){},
+        toValue(){}
+    });
+
+    类的内部所有定义的方法，都是不可以枚举的（non-enumerable）.
+    class Point(){
+        constructor(x, y){
+
+        }
+        toString(){
+
+        }
+    }
+
+    Object.keys(Point.prototype) // []
+    Object.getOwnPropertyNames(Point.prototype)// ["constructor", "toString"]
+
+    类的属性名，可以采用表达式:
+
+        let methodName = 'getArea';
+
+        class Square{
+            constructor(length){
+                //...
+            }
+            [methodName](){
+                //...
+            }
+        }
+
+
+2. 严格模式
+    类和模块的内部，默认就是严格模式，所以不需要使用use strict 指定运行模式。
+
+3. constructor 方法
+    
+    constructor 方法是类的默认方法，通过new命令生成对象实例时，自动调用该方法。
+    一个类必须有constrictor方法，如果没有显示定义，一个空的constructor方法会被默认添加。
+    class Point{
+
+    }
+
+    //等同于
+    class Poing{
+        constrcutor(){}
+    }
+
+    constructor 方法默认返回实例对象（即this）,完全可以指定返回另一个对象。
+    class Foo{
+        constructor(){
+            return Object.create(null);
+        }
+    }
+    new Foo() instanceof Foo //false
+
+    类必须使用new调用，否则会报错，这是它跟普通构造函数的一个主要区别。后者不用new也可以执行
+
+
+4. 类的实例对象
+
+    生成类的实例对象的写法，于ES5完全一样，也是使用new命令。
+    前面说过，如果忘记加上new，像函数那样调用class，将会报错。
+
+    class Point(){
+        // ...
+    }
+
+    //报错
+    var point = Point(2, 3);
+
+    //正确
+    var point = new Point(2, 3);
+
+    于ES5一样，实例的属性除非显式定义在其本身（即定义在this对象上），否则都是定义在原型上（定义在class上）
+
+    //定义类
+    class Point(){
+        constructor(x, y){
+            this.x = x;
+            this.y = y;
+        }
+
+        toString(){
+            return "(" + this.x + "," + this.y + ")";
+        }
+    }
+
+    var point = new Point(2, 3);
+    point.toString() //(2, 3)
+    point.havOwnProperty('x') //true
+    point.hasOwnProperty('toString'); //false
+    point.__proto__.hasOwnProperty('toString') //true
+
+    上面代码中，x, y 都是实例对象point自身的属性（定义在this变量上），
+    所以hasOwnProperty方法返回true。而toString是原型对象的属性（在Point类上）
+    所以hasOwnProperty方法返回false.
+
+    重点： 所有类共享同一个原型对象
+    var p1 = new Point(1, 2);
+    var p2 = new Point(3, 3);
+    p1.__proto__ === p2.__proto__
+
+
+    可以通过实例的__proto__ 属性为类添加方法
+        __proto__ 并不是语言本身的特征，这是各大厂商具体实现时添加的私有属性。
+        在生产环境中，我们可以使用Object.getPrototypeOf 方法来获取实例对象的原型，然后再来为原型添加方法/属性。
+        var p1 = new Point(2, 3);
+        var p2 = new Point(3, 3);
+
+        p1.__proto__.printName = function(){return 'Oops'};
+        p1.printName();
+        p2.printName();
+
+        var p3 = new Point(4, 2);
+        p3.printName();
+
+5. Class表达式
+
+    与函数一样，类可以使用表达式的形式定义。
+    const MyClass = class Me{
+        getClassName(){
+            return Me.name;
+        }
+    }
+    上面代码使用表达式定义了一个类，需要注意到是，这个类的名字是MyClass而不是Me，Me只在Class的内部代码可用，指代当前类
+
+    let inst = new MyClass();
+    inst.getClassName() //Me
+    Me.name  // referenceError: Me is not defined
+
+    如果类的内部没用的话，可以省略Me，也就是可以写出下面的形式。
+
+    const MyClass = class{/*....*/};
+
+    采用Class表达式，可以写出立即执行的Class
+    let person = new class{
+        constructor(name){
+            this.name = name;
+        }
+        sayName(){
+            console.log(this.name);
+        }
+    }('张三');
+    person.sayName();
+
+6. 不存在变量提升
+
+    类不存在变量提升（hoist）
+
+    new Foo(); // ReferenceError
+    class Foo{}
+
+    上面代码中，Foo类使用在前，定义在后，这样会报错，因为ES6不会把类的声明提升到代码头部。
+    这种规定的原因与下午要提到底继承有关。必须保证子类在父类之后定义。
+    {
+        let Foo = class();
+        class Bar extends Foo{
+
+        }
+    }
+
+
+7. 私有方法
+    私有方法是常见的，但是ES6不提供，只能通过变通方法模拟实训
+    一种做法是在命名上加以区别
+    class Widget{
+         // 公有方法
+          foo (baz) {
+            this._bar(baz);
+          }
+
+          // 私有方法
+          _bar(baz) {
+            return this.snaf = baz;
+          }
+    }
+    
+    另一种方法就是索性将私有方法移除模块，因为模块内部的所有方法都是对外可见的
+    class Widget {
+      foo (baz) {
+        bar.call(this, baz);
+      }
+
+      // ...
+    }
+
+    function bar(baz) {
+      return this.snaf = baz;
+    }
+    上面代码中，foo是公有方法，内部调用了bar.call(this, baz)。这使得bar实际上成为了当前模块的私有方法。
+
+    还有一种方法是利用Symbol值得唯一性，将私有方法的名字命名为一个Symbol值
+    const bar = Symbol('bar');
+    const snaf = Symbol('snaf');
+
+    export defualt class myClass{
+        // 公有方法
+        foo(baz) {
+            this[bar](baz);
+        }
+
+        // 私有方法
+        [bar](baz) {
+            return this[snaf] = baz;
+        }
+
+        // ...
+    }
+
+8. 私有属性
+        
+
+
+
+
+
+9. this的指向
+
+10. name属性
+
+11. Class的取值函数（getter） 和 存值函数（setter）
+
+12. Class 的 generator 方法
+
+13. Class 的静态方法
+
+14. Class 的静态属性和实例属性
+
+15. new.target属性
+

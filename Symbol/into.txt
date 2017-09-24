@@ -1,0 +1,430 @@
+1. 概述
+    
+    1> 保证每一个属性的名字都是独一无二的，从根本上解决防止属性名的冲突
+
+    2> ES6引入了一种新的原始数据类型 Symbol。表示独一无二的值。
+
+    3> 对象的属性名现在可以有两种类型，
+        (a) 原本的字符串
+        (b) 新增的Symbol 类型
+
+    4> 案例
+        let s = Symbol();
+        typeof s;  //"symbol"
+
+    5>  Symbol函数前不能使用new命令，因为生产的Symbol是一个原始类型的值，而不是对象。
+        所以不能添加属性。基本上，它是一种类似于字符串的数据类型。
+
+    6> Symbol函数可以接受一个字符串作为参数，表示对Symbol实例的描述，
+        主要是为了在控制台显示，或者转换为字符串时，比较容易区分。
+
+        var s1 = Symbol('foo');
+        var s2 = Symbol('bar');
+
+        s1 // Symbol(foo)
+        s2 // Symbol(bar)
+
+        s1.toString() // "Symbol(foo)"
+        s2.toString() // "Symbol(bar)"
+
+        ---------------------------------------
+
+        如果Symbol是参数是一个对象，就会调用该对象都toString方法，将其转为字符串，然后生成Symbol值
+        const obj = {
+            toString(){
+                return "abc";
+            }
+        }
+
+        const sym = Symbol(obj);
+        sym // Symbol(abc)
+
+        -----------------------------------------------
+
+        Symbol函数的参数只是表示对当前 Symbol 值的描述，因此相同参数的Symbol函数的返回值是不相等的。
+
+        // 没有参数的情况
+        var s1 = Symbol();
+        var s2 = Symbol();
+        s1 === s2  // false
+
+        //有参数的情况
+        var s1 = Symbol('foo');
+        var s2 = Symbol('foo');
+        s1 === s2 //false
+
+        ------------------------------------------
+
+        Symbol 值不能与其他类型的值进行运算，会报错。
+
+        var sym = Symbol("My symbol");
+
+        "your symbol is " + sym; //// TypeError: can't convert symbol to string
+
+
+        ----------------------------------------------------
+        Symbol 值可以显示转换为字符串
+        var sym = Symbol('My symbol');
+
+        String(sym)     // "Symbol(My symbol)"
+        sym.toStrintg() // "Symbol(My symbol)"
+
+        -------------------------------------------------------
+        Symbol 值也可以转为布尔值，但是不能转为数值。
+
+        var sym = Symbol();
+        Boolean(sym) // true
+        !sym // false
+
+        if(sym){
+
+        }
+
+        Number(sym) // TyepeError
+
+
+2. 作为属性名的Symbol 
+    对于一个对象由多个模块构成的情况，非常实用，能防止某一个键被不小心改写或覆盖
+
+    var mySymbol = Symbol();
+
+    //第一种写法
+    var a = {};
+    a[mySymbol] = "hello!";
+
+    //第二种写法
+    var a = {
+        [mySymbol] : 'Hello!'
+    };
+
+    //第三种写法
+    var a = {};
+    Object.defineProperty(a, mySysbol, {value:"hello!"});
+
+    //以上写法的结果相同
+    a[mySymbol] // "Hello!"
+
+    ------------------------------------------
+    Symbol 值作为对象属性名时，不能用点运算符
+    因为点运算符后面总是字符串，所以不会读取mySymbol作为标识名所指代的那个值，
+    导致a的属性名实际上是一个字符串，而不是一个 Symbol 值。
+    var mySymbol = Symbol();
+    var a = {};
+    a.mySymbol = "hello!";
+    a[mySymbol] // undefined
+    a['mySymbol'] // "hello!"   
+
+    --------------------------------------
+    该属性的键名就是字符串s，而不是s所代表的那个 Symbol 值。
+
+    let s = Symbol();
+    let obj = {
+        [s]: function(arg){}
+    }
+
+    obj[s](123); 
+
+    -------------------------------------------
+    采用增强的对象写法，上面代码的obj对象可以写的更加简洁些
+
+    let obj = {
+        [s](arg){...}
+    }
+
+    --------------------------------------------
+    Symbol 类型还可以用于定义一组常量，保证这组常量的值都是不相等的。
+
+    log.levels = {
+        DEBUG: Symbol('debug'),
+        INFO: Symbol('info'),
+        WARN: Symbol('warn')
+    };
+
+    log(log.levels.DEBUG, 'debug message');
+    log(log.levels.INFO, 'info message');
+
+    -----------------------------------------------
+    const COLOR_RED = Symbol();
+    const COLOR_GREEN = Symbol();
+
+    function getCmp(color){
+        switch (color){
+            case COLOR_RED:
+                return COLOR_RED;
+
+            case COLOR_GREEN:
+                return COLOR_GREEN;
+            default:
+                throw new Error('Undefined color');
+        }
+    }
+
+
+3. 实例：消除魔术字符串
+    
+    function getArea(shape, options){
+        var area = 0;
+
+        switch(shape){
+            case 'Triangle': //魔术字符串
+                area = .5 * options.width * options.height;
+            break;
+            ....
+        }
+
+        return area;
+    }    
+
+    getArea('Triangle', { width: 100, height: 100 }); // 魔术字符串
+
+    字符串Triangle就是一个魔术字符串。它多次出现，与代码形成“强耦合”，不利于将来的修改和维护。
+
+    ---------------------------------------
+    改为变量
+    var shapeType = {
+        triangle: 'Triangle'
+    };
+
+    function getArea(shape, options) {
+        var area = 0;
+        switch (shape) {
+        case shapeType.triangle:
+            area = .5 * options.width * options.height;
+            break;
+        }
+        return area;
+    }
+
+    getArea(shapeType.triangle, { width: 100, height: 100 });
+    我们把Triangle写成shapeType对象的triangle属性，这样就消除了强耦合。
+
+
+    -----------------------------------------------------
+    const shapeType = {
+        triangle: Symbol()
+    };
+
+    上面代码中，除了将shapeType.triangle的值设为一个Symbol，其他地方都不用修改
+
+
+4. 属性名的遍历
+    Symbol作为属性名，
+        1>  该属性不能出现在
+            for ... in
+            for ... of
+        2> 不会被返回
+            Object.keys()
+            Object.getOwnPropertyNames()
+            JSON.stringify()
+
+        3>  不是私有属性
+
+        4> 获取对象上的所有Symbol属性名
+            Object.getOwnPropertySymbols()
+            返回一个数组
+
+        5> Reflect.ownKeys()
+            返回所有类型的键名，包括常规键名和Symbol键名
+
+            let obj = {
+                [Symbol('my_key')] : 1,
+                enum:2,
+                nonEnum:3
+            }
+
+            Reflect.ownKeys(obj)
+            // ["enum", "nonEnum", Symbol(my_key)]
+
+
+        6> 由于以 Symbol 值作为名称的属性，不会被常规方法遍历得到。
+            我们可以利用这个特性，为对象定义一些非私有的、但又希望只用于内部的方法。
+
+            var size = Symbol('size')
+
+            class Collection{
+                contractor(){
+                    this[size] = 0;
+                }
+                add(item){
+                    this[this[size]] = item;
+                    this[size]++;
+                }
+                static sizeOf(instance){
+                    return instance(size);
+                }
+            }
+
+5. Symbol.for(), Symbol.keyFor()
+
+    有时，我们希望重新使用同一个Symbol值，Symbol.for 方法可以做到这一点。
+    它接受一个字符串作为参数，然后搜索有没有以该参数作为名称的Symbol值。
+    如果有，就返回这个Symbol值，否则就新建并返回一个以该字符串为名称的Symbol值。
+
+    var s1 = Symbol.for('foo');
+    var s2 = Symbol.for('foo');
+
+    s1 === s2  //true
+
+    如果你调用Symbol.for("cat")30次，每次都会返回同一个 Symbol值，
+    但是调用Symbol("cat")30次，会返回30个不同的Symbol值
+
+    ------------------------------------
+
+    Symbol.keyFor() 方法可以返回一个已登记的Symbol类型的key
+
+    var s1 = Symbol.for("foo");
+    Symbol.keyFor(s1) //"foo"
+
+    var s2 = Symbol("cat");
+    Symbol.keyFor(s2) // undefined
+
+    Symbol.for为Symbol值登记的名字，是全局环境的，可以在不同的 iframe 或 service worker 中取到同一个值。
+
+
+    iframe = document.createElement('iframe');
+    iframe.src = String(window.location);
+    document.body.appendChild(iframe);
+
+    iframe.contentWindow.Symbol.for('foo') === Symbol.for('foo')
+
+
+6. 实例： 模块的Singleton模式
+    Singleton 模式指导是调用一个类，任何时候返回的都是同一个实例。
+
+    // mod.js
+    const FOO_KEY = Symbol.for("foo");
+
+    function A(){
+        this.foo = 'hello';
+    }
+
+    if(!global[FOO_KEY]){
+        global[FOO_KEY] = new A();
+    }
+
+    module.exports = global[FOO_KEY]
+
+    可以保证global[FOO_KEY]不会被无意间覆盖，但还是可以被改写。  
+    var a = require('./mod.js');
+    global[Symbol.for('foo')] = 123;
+
+    上面代码将导致其他脚本都无法引用FOO_KEY。但这样也有一个问题，就是如果多次执行这个脚本，每次得到的FOO_KEY都是不一样的。虽然Node会将脚本的执行结果缓存，一般情况下，不会多次执行同一个脚本，但是用户可以手动清除缓存，所以也不是完全可靠
+
+
+7. 内置的Symbol值
+    ES6提供了11个内置的Symbol值，指向语言内部使用的方法
+
+
+    1. Symbol.hasInstance
+        对象的Symbol.hasInstance属性，指向一个内部方法.
+        当其他对象使用instanceof运算符，判断是否为该对象的实例时，会调用这个方法。
+
+        foo instanceof Foo
+        在语言内部，实际调用的是Foo[Symbol.hasInstance](foo)。
+
+        class MyClass{
+            [Sysbol.hasInstance](foo){
+                return foo instanceof Array;
+            }
+        }    
+
+        [1, 2, 3] instanceof new MyClass() 
+        该实例的Symbol.hasInstance方法，会在进行instanceof运算时自动调用，判断左侧的运算子是否为Array的实例。
+
+        class Even{
+            static [Symbol.hasInstance](obj){
+                return Number(obj) % 2 === 0;
+            }
+        }
+
+        1 instanceof Even
+        2 instanceof Even
+        12345 instanceof Even
+
+
+    2. Symbol.isConcatSpreadable
+        表示该对象用于Array.prototype.concat()时，是否可以展开。
+
+        let arr1 = ['c', 'd'];
+        ['a', 'b'].concat(arr1, 'e') // ['a', 'b', 'c', 'd', 'e']
+        arr1[Symbol.isConcatSpreadable] // undefined
+
+        let arr2 = ['c', 'd'];
+        arr2[Symbol.isConcatSpreadable] = false;
+        ['a', 'b'].concat(arr2, 'e') // ['a', 'b', ['c', 'd'], 'e']
+
+        数组的默认行为是可以展开，Symbol.isConcatSpreadable默认等于undefined。该属性等于true时，也有展开的效果。
+
+        --------------------------------------------------  
+        类似数组的对象正好相反，默认是不展开。它的Symbol.isConcatSpreadable属性设为true，才可以展开。
+        let obj = {length: 2, 0: 'c', 1: 'd'};
+        ['a', 'b'].concat(obj, 'e') // ['a', 'b', obj, 'e']
+        
+        obj[Symbol.isConcatSpreadable] = true;
+        ['a', 'b'].concat(obj, 'e') // ['a', 'b', 'c', 'd', 'e']
+
+        ----------------------------------------------
+        Symbol.isConcatSpreadable属性也可以定义在类里面。
+
+
+        //定义在实例上
+        class A1 extends Array{
+            constractor(args){
+                super(args);
+                this[Symbol.isConcatSpreadable] = true;
+            }
+
+        }
+
+        //定义在类本身
+        Class A2 extends Array{
+            contractor(args){
+                super(args);
+            }
+            get[Symbol.isContractSpreadable](){
+                return false;
+            }
+        }
+
+        let a1 = new A1()
+        a1[0] = 3;
+        a2[1] = 4;
+        let a2 = new A2();
+        a2[0] = 5;
+        a2[6] = 6;
+        [1, 2].concat(a1).concat(a2)  // [1, 2, 3, 4, [5, 6]]
+
+
+    3. Symbol.species
+        对象的Symbol.species 属性，指向当前对象的构造函数。 
+        创造实例时，默认会调用这个方法，即:使用这个属性返回的函数当作构造函数，来创建新的实例对象
+
+        class MyArray extends Array{
+            static get[Symbol.species]() {
+                return Array;
+            }
+        }
+
+        子类MyArray继承了父类Array。创建MyArray的实例对象时，本来会调用它自己的构造函数（本例中被省略了），但是由于定义了Symbol.species属性，所以会使用这个属性返回的的函数，创建MyArray的实例。
+
+        --------------------------------------------------------------------
+        定义Symbol.species属性要采用get读取器。默认的Symbol.species属性等同于下面的写法。   
+
+        static get[Symbol.species](){
+            return this;
+        }
+
+        -------------------------------------------------
+        class MyArray extends Array{
+            static get[Symbol.species](){
+                return Array;
+            }
+        }
+
+        var a = new MyArray(1, 2, 3);
+        var mapped = a.map(x => x * x);
+
+        mapped instanceof MyArray //false
+        mapped instanceof Array   //true
+
+        由于构造函数被替换成了Array。所以，mapped对象不是MyArray的实例，而是Array的实例。       
