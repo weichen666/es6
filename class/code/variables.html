@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //变通的方法模拟
+        class Widget{
+            foo(baz){
+                this._bar(baz);
+            }
+
+            //私有方法
+            _bar(baz){
+                return this.snaf = baz;
+            }
+        }
+        
+        //将私有方法移出模块
+        class Widget {
+            foo (baz) {
+                bar.call(this, baz);
+            }
+
+            // ...
+        }
+        function bar(baz) {
+            return this.snaf = baz;
+        }
+
+        //利用Sysbol值得唯一性，将私有方法的名字命名为一个Symbol值(第三方无法获取)
+        const bar = Symbo1('bar');
+        const snaf = Symbol('snaf');
+        export default class myClass{
+
+            //公有方法
+            foo(baz){
+                this[bar](baz);
+            }
+
+            //私有方法
+            [bar](baz){
+                return this[snaf] = baz;
+            }
+        }
+            
+
+        //私有属性,或私有方法的提案（在属性名之前，加上#表示）
+        class Point{
+            #x = 0;
+            constructor(x = 0){
+                #x += x; //写成 this.#x 也可以
+            }
+
+            get x(){
+                return #x;
+            }
+            set x(v){
+               #x = +value;
+            }
+        }
+
+
+
+    </script>
+</body>
+</html>
