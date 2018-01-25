@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+        //类也可以使用表达式的形式定义.
+        
+        //这个类的名字是MyClass 而不是Me， Me 只在的内部代码可用，指代当前类, 如果类内部没有使用Me的话，可以省略。
+        const MyClass = class Me{
+            getClassName(){
+                return Me.name;
+            }
+        }
+    
+        let inst = new MyClass();
+        inst.getClassName() // Me
+        
+        //立即执行Class (注意 class )
+        let person = new class{
+            constructor(name){
+                this.name = name;
+            }
+            sayName(){
+                console.log(this.name);
+            }
+        }('张三');
+    </script>
+
+
+</body>
+</html>

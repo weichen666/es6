@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+    <script>
+        //实例的属性除非是显式定义在其本身（在this对象上），否则都是定义在原型上（定义在class上）  
+        class P{
+            constructor(x, y){
+                this.x = x;
+                this.y = y;
+            }
+
+            //这个方法是定义在原型对象上的，P的类上，
+            toString(){
+                return "(" + this.x + ", " + this.y + ")";
+            }
+        }
+
+        var p = new P(2, 3);
+        p.toString() // (2, 3)
+        p.hasOwnProperty('x') //true
+        p.hasOwnProperty('y') //true
+        p.hasOwnProperty('toString') //false
+        p.__proto__.hasOwnProperty('toString') //true
+
+
+        //与ES5一致，类的所有实例共享一个原型对象
+        var p1 = new Point(2, 3);
+        var p2 = new Point(3, 2);
+        p1.__proto__ === p2.__proto__; //true
+      
+    </script>
+
+</body>
+</html>

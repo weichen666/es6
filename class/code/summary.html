@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+
+        //原始方式
+        function Point(x, y){
+            this.x = x;
+            this.y = y;
+        }
+
+        Point.prototype.toString = function(){
+            return "(" + this.x + "," + this.y + ")";
+        }
+        var p = new Point(1, 2);
+
+        //新class语法糖
+        class Point{
+            //构造函数，this代表实例对象
+            constructor(x, y){
+                this.x = x;
+                this.y = y;
+            }
+
+            //类方法，不需要加上function 这个关键字。不需要逗号分隔
+            toString(){
+                return "(" + this.x + ", " + this.y + ")";
+            }
+        }
+
+        //类就是一个函数
+        typeof Point //"function"
+
+        //类本身执行构造函数
+        Point === Point.prototype.constructor //true
+
+        //使用
+        var p = new Point();
+        p.toString();
+
+
+        //构造函数的prototype属性.类的所有方法都定义在类的propotype属性上
+        class P{
+            constructor(){
+
+            }
+            toString(){
+
+            }
+            toValue(){
+
+            }
+        }
+
+        //等价于
+        P.prototype = {
+            constructor(){},
+            toString(){},
+            toValue(){}
+        }
+
+        //在类的实例上调用方法，其实就是调用原型上的方法。
+        class B{}
+        let b = new B();
+        b.constructor === B.prototype.constructor // true
+
+        //类的新方法可以添加在prototype对象上。
+        class P{}
+
+        Object.assign(Point.prototype, {
+            toString(){},
+            toValue(){}
+        })
+
+        //类的内部所有定义的方法，都是不可枚举的（non-enumerable） 与ES5不同
+        class P{
+            constructor(x, y){
+
+            }
+            toString(){
+
+            }
+        }
+        Object.keys(Point.prototype) // []
+        Object.getOwnPropertyNames(Point.prototype) // ["constructor","toString"]
+
+        //ES5, 可枚举的
+        var Point = function(x, y){}
+        Point.prototype.toString = function(){}
+        Object.keys(Point.prototype) //['toString']  
+
+        //类的属性名称，可以是表达式的值
+        let methodName = "getArea";
+        class Square{
+            constructor(length){
+
+            }
+            [methodName](){
+                
+            }
+        }
+
+    </script>
+</body>
+</html>
